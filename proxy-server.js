@@ -143,7 +143,7 @@ app.get('/proxy', async (req, res) => {
   }
 });
 
-// --- /proxy-headless route using Puppeteer ---
+// --- NEW /proxy-headless route using Puppeteer ---
 app.get('/proxy-headless', async (req, res) => {
   const targetUrl = req.query.url;
 
