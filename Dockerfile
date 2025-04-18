@@ -46,14 +46,14 @@ RUN apt-get update && apt-get install -y \
     wget \
     xdg-utils \
     --no-install-recommends \
-    # Install Chromium browser package
-    && apt-get install -y chromium-browser \
+    # Install Chromium browser package (using 'chromium' instead of 'chromium-browser')
+    && apt-get install -y chromium \
     # Clean up apt cache
     && rm -rf /var/lib/apt/lists/*
 
 # --- Set Puppeteer environment variables ---
-# Tell Puppeteer where the installed Chromium executable is
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+# Tell Puppeteer where the installed Chromium executable is (adjust path if needed for 'chromium')
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 # Set the cache directory as suggested by the error message for Koyeb
 ENV PUPPETEER_CACHE_DIR=/app/.cache/puppeteer
 # Skip downloading Chromium during npm install, as we installed it via apt-get
