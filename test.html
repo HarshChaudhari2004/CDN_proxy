@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proxy Test</title>
+    <style>
+        body {
+            font-family: sans-serif;
+        }
+        iframe {
+            width: 90%;
+            height: 400px;
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+        }
+        h2 {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Proxy Server Test Page</h1>
+    <p>This page attempts to load the following URLs via the proxy server running at <code>http://localhost:3001</code>.</p>
+    <p><strong>Note:</strong> Some websites might still prevent embedding due to their own internal scripts, even with the proxy.</p>
+
+    <!-- <h2>Reddit Post</h2>
+    <iframe 
+        src="http://localhost:3001/proxy?url=https://www.reddit.com/r/developersIndia/comments/1jn3sy5/what_was_that_one_technique_that_took_your/"
+        title="Reddit via Proxy">
+    </iframe> -->
+    <!-- Example for Reddit -->
+    <iframe
+        src="http://localhost:3001/proxy-headless?url=https://www.reddit.com/r/IndiaTech/comments/1jm1ai5/blinkit_doing_in_game_ads/"
+        title="Reddit via Headless Proxy">
+    </iframe>
+
+    <!-- <h2>Analytics India Mag Article</h2>
+    <iframe 
+        src="http://localhost:3001/proxy?url=https://analyticsindiamag.com/ai-features/why-developers-are-cancelling-cursor-subscriptions/"
+        title="Analytics India Mag via Proxy">
+    </iframe> -->
+    <!-- Example for Analytics India Mag -->
+    <!-- <iframe
+        src="http://localhost:3001/proxy-headless?url=https://analyticsindiamag.com/ai-features/why-developers-are-cancelling-cursor-subscriptions/"
+        title="Analytics India Mag via Headless Proxy">
+    </iframe> -->
+
+    <!-- <h2>XDA Developers Article</h2>
+    <iframe 
+        src="http://localhost:3001/proxy?url=https://www.xda-developers.com/programs-i-use-on-pc-despite-alternatives/"
+        title="XDA Developers via Proxy">
+    </iframe> -->
+    <!-- Example for XDA -->
+    <!-- <iframe
+        src="http://localhost:3001/proxy-headless?url=https://www.xda-developers.com/programs-i-use-on-pc-despite-alternatives/"
+        title="XDA Developers via Headless Proxy">
+    </iframe> -->
+
+    <!-- <h2>Hacker News</h2>
+    <iframe
+        src="http://localhost:3001/proxy?url=https://www.howtogeek.com/how-i-remotely-access-my-home-server-from-my-iphone/"
+        title="Hacker News via Proxy">
+    </iframe> -->
+
+</body>
+</html>
