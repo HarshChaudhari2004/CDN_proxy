@@ -10,7 +10,7 @@
         }
         iframe {
             width: 90%;
-            height: 400px;
+            height: 500px;
             border: 1px solid #ccc;
             margin-bottom: 20px;
         }
@@ -21,45 +21,52 @@
 </head>
 <body>
     <h1>Proxy Server Test Page</h1>
-    <p>This page attempts to load the following URLs via the proxy server running at <code>http://localhost:3001</code>.</p>
+    <p>This page attempts to load the following URLs via the proxy server running at <code>https://alive-ethel-supermind-e0a49773.koyeb.app</code>.</p>
     <p><strong>Note:</strong> Some websites might still prevent embedding due to their own internal scripts, even with the proxy.</p>
 
     <!-- <h2>Reddit Post</h2>
     <iframe 
-        src="http://localhost:3001/proxy?url=https://www.reddit.com/r/developersIndia/comments/1jn3sy5/what_was_that_one_technique_that_took_your/"
+        src="https://alive-ethel-supermind-e0a49773.koyeb.app/proxy-headless?url=https://www.reddit.com/r/developersIndia/comments/1jn3sy5/what_was_that_one_technique_that_took_your/"
         title="Reddit via Proxy">
     </iframe> -->
-    <!-- Example for Reddit -->
-    <iframe
-        src="http://localhost:3001/proxy-headless?url=https://www.reddit.com/r/IndiaTech/comments/1jm1ai5/blinkit_doing_in_game_ads/"
+    
+    <h2>Reddit Post (Normal Proxy)</h2>
+    
+    <iframe 
+        src='https://publish.reddit.com/embed?url=https://www.reddit.com/r/ClaudeAI/comments/1jj2ucr/i_completed_a_project_with_100_aigenerated_code/?share_id=P_ouOXNAcvZlhfwSk-tkR&utm_content=2&utm_medium=android_app&utm_name=androidcss&utm_source=share&utm_term=2'
         title="Reddit via Headless Proxy">
     </iframe>
-    <iframe
-        src="https://alive-ethel-supermind-e0a49773.koyeb.app/proxy-headless?url=https://www.reddit.com/r/IndiaTech/comments/1jm1ai5/blinkit_doing_in_game_ads/"
+    <iframe 
+        src="http://localhost:3001/proxy?url=https://github.com/Cheffromspace/MCPControl"
         title="Reddit via Headless Proxy">
     </iframe>
+
+    <h2>microsoft</h2>
+    <iframe 
+        src="http://localhost:3001/proxy?url=https://learn.microsoft.com/en-us/azure/static-web-apps/get-started-portal?tabs=vanilla-javascript&pivots=github"
+        title="microsoft via Proxy">
 
     <h2>Analytics India Mag Article</h2>
     <iframe 
-        src="https://alive-ethel-supermind-e0a49773.koyeb.app/proxy-headless?url=https://analyticsindiamag.com/ai-features/why-developers-are-cancelling-cursor-subscriptions/"
+        src="https://alive-ethel-supermind-e0a49773.koyeb.app/proxy?url=https://www.npmjs.com/package/@react-native-camera-roll/camera-roll"
         title="Analytics India Mag via Proxy">
     </iframe>
     <!-- Example for Analytics India Mag -->
-    <!-- <iframe
-        src="http://localhost:3001/proxy-headless?url=https://analyticsindiamag.com/ai-features/why-developers-are-cancelling-cursor-subscriptions/"
+    <iframe
+        src="http://localhost:3001/proxy?url=https://analyticsindiamag.com/ai-features/why-developers-are-cancelling-cursor-subscriptions/"
         title="Analytics India Mag via Headless Proxy">
-    </iframe> -->
+    </iframe>
 
     <h2>XDA Developers Article</h2>
-    <iframe 
+    <!-- <iframe 
         src="https://alive-ethel-supermind-e0a49773.koyeb.app/proxy?url=https://www.xda-developers.com/programs-i-use-on-pc-despite-alternatives/"
         title="XDA Developers via Proxy">
-    </iframe>
-    <!-- Example for XDA -->
-    <!-- <iframe
-        src="http://localhost:3001/proxy-headless?url=https://www.xda-developers.com/programs-i-use-on-pc-despite-alternatives/"
-        title="XDA Developers via Headless Proxy">
     </iframe> -->
+    <!-- Example for XDA -->
+    <iframe
+        src="http://localhost:3001/proxy?url=https://www.xda-developers.com/programs-i-use-on-pc-despite-alternatives/"
+        title="XDA Developers via Headless Proxy">
+    </iframe>
 
     <!-- <h2>Hacker News</h2>
     <iframe

@@ -240,8 +240,8 @@ app.get('/proxy-headless', async (req, res) => {
         return res.status(response?.status() || 500).send(`Failed to load page: Status ${response?.status()}`);
     }
 
-    // Wait a bit for dynamic content (but not too long)
-    await page.waitForTimeout(2000);
+    // Wait a bit for dynamic content using proper timeout method
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
     console.log('Getting page content...');
     const content = await page.content();
