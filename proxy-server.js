@@ -152,7 +152,7 @@ app.get('/proxy-headless', async (req, res) => {
   }
 
   let browser = null;
-  let page = null; // Define page here for logging
+  let page = null;
 
   try {
     console.log(`Headless proxying request for: ${targetUrl}`);
@@ -164,68 +164,121 @@ app.get('/proxy-headless', async (req, res) => {
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage' // Keep this one, often needed
-            // Removed '--single-process'
+            '--disable-dev-shm-usage',
+            '--disable-gpu',
+            '--disable-software-rasterizer',
+            '--disable-extensions',
+            '--disable-background-networking',
+            '--disable-default-apps',
+            '--disable-sync',
+            '--disable-translate',
+            '--hide-scrollbars',
+            '--metrics-recording-only',
+            '--mute-audio',
+            '--no-first-run',
+            '--safebrowsing-disable-auto-update',
+            '--ignore-certificate-errors',
+            '--ignore-certificate-errors-spki-list',
+            '--disable-features=site-per-process',
+            '--disable-features=TranslateUI',
+            '--disable-features=Translate',
+            '--disable-breakpad',
+            '--disable-crash-reporter',
+            '--js-flags="--max-old-space-size=460"' // Limit JS memory
         ],
         executablePath: executablePath,
-        // Optional: Increase timeout for browser launch if needed
-        // timeout: 60000 // 60 seconds
+        protocolTimeout: 60000, // Increase protocol timeout to 60 seconds
+        timeout: 60000, // Increase launch timeout to 60 seconds
+        ignoreHTTPSErrors: true, // Ignore HTTPS errors
+        headless: 'new' // Use new headless mode
     });
     console.log('Puppeteer browser launched.');
 
     page = await browser.newPage();
     console.log('New page created.');
 
+    // Set viewport to a smaller size to reduce memory
+    await page.setViewport({
+        width: 1024,
+        height: 768,
+        deviceScaleFactor: 1
+    });
+
+    // Optimize page settings
+    await page.setRequestInterception(true);
+    page.on('request', (req) => {
+        const resourceType = req.resourceType();
+        // Block unnecessary resources
+        if (resourceType === 'image' || 
+            resourceType === 'stylesheet' || 
+            resourceType === 'font' ||
+            resourceType === 'media') {
+            req.abort();
+        } else {
+            req.continue();
+        }
+    });
+
+    // Set a realistic user agent
     await page.setUserAgent(req.headers['user-agent'] || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36');
-    console.log('User agent set.');
+    console.log('User agent and page settings configured.');
+
+    // Configure page timeouts and other settings
+    await page.setDefaultNavigationTimeout(60000); // 60 seconds
+    await page.setDefaultTimeout(60000);
 
     console.log(`Navigating to ${targetUrl}...`);
-    const response = await page.goto(targetUrl, { waitUntil: 'networkidle0', timeout: 30000 }); // Keep 30s timeout for now
+    const response = await page.goto(targetUrl, {
+        waitUntil: 'domcontentloaded', // Changed from networkidle0 to domcontentloaded for faster loading
+        timeout: 60000 // 60 seconds
+    });
     console.log(`Navigation response status: ${response?.status()}`);
 
     if (!response || !response.ok()) {
         console.error(`Headless proxy failed during navigation for ${targetUrl}: Status ${response?.status()}`);
-        // Close browser before sending response on failure
         if (browser) await browser.close();
         return res.status(response?.status() || 500).send(`Failed to load page: Status ${response?.status()}`);
     }
+
+    // Wait a bit for dynamic content (but not too long)
+    await page.waitForTimeout(2000);
 
     console.log('Getting page content...');
     const content = await page.content();
     console.log('Page content retrieved.');
 
-    // ... rest of the route (header setting, sending response) ...
     res.removeHeader('X-Frame-Options');
     res.removeHeader('Content-Security-Policy');
     res.removeHeader('Content-Length');
     res.send(content);
     console.log(`Successfully proxied ${targetUrl}`);
 
-
   } catch (error) {
-    // Log the error with more context
     console.error(`Headless proxy error for ${targetUrl}:`, error);
     if (page) {
-        console.error("Page URL at time of error:", page.url());
+        try {
+            console.error("Page URL at time of error:", await page.url());
+            console.error("Page metrics:", await page.metrics());
+        } catch (metricsError) {
+            console.error("Could not get page metrics:", metricsError);
+        }
     }
     if (!res.headersSent) {
         res.status(500).send(`Headless proxy error: ${error.message}`);
     }
   } finally {
-    // Ensure the browser is closed even if errors occur
     if (browser) {
-      console.log('Closing browser...');
-      try {
-          await browser.close();
-          console.log('Browser closed.');
-      } catch (closeError) {
-          console.error('Error closing browser:', closeError);
-      }
+        console.log('Closing browser...');
+        try {
+            await browser.close();
+            console.log('Browser closed.');
+        } catch (closeError) {
+            console.error('Error closing browser:', closeError);
+        }
     }
   }
 });
 
-app.listen(port, () => {
-  // Use the dynamic port in the log message
-  console.log(`CORS Proxy server listening at http://localhost:${port}`);
+app.listen(port, '0.0.0.0', () => {
+  console.log(`CORS Proxy server listening at http://0.0.0.0:${port}`);
 });
