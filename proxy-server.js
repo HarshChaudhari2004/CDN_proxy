@@ -143,7 +143,7 @@ app.get('/proxy', async (req, res) => {
   }
 });
 
-// --- NEW /proxy-headless route using Puppeteer ---
+// --- /proxy-headless route using Puppeteer ---
 app.get('/proxy-headless', async (req, res) => {
   const targetUrl = req.query.url;
 
@@ -151,62 +151,76 @@ app.get('/proxy-headless', async (req, res) => {
     return res.status(400).send('Missing target URL parameter');
   }
 
-  let browser = null; // Define browser outside try block for finally
+  let browser = null;
+  let page = null; // Define page here for logging
+
   try {
     console.log(`Headless proxying request for: ${targetUrl}`);
 
-    // Use Render's provided Chromium path if available
     const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || undefined;
+    console.log(`Attempting to launch Puppeteer with executable: ${executablePath || 'default'}`);
 
     browser = await puppeteer.launch({
-        // Add args for Render/Linux compatibility
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage', // Often needed in resource-constrained environments
-            '--single-process' // May help with memory
+            '--disable-dev-shm-usage' // Keep this one, often needed
+            // Removed '--single-process'
         ],
-        executablePath: executablePath // Pass the path to Puppeteer
+        executablePath: executablePath,
+        // Optional: Increase timeout for browser launch if needed
+        // timeout: 60000 // 60 seconds
     });
-    const page = await browser.newPage();
+    console.log('Puppeteer browser launched.');
 
-    // Set User-Agent to match the client's browser
+    page = await browser.newPage();
+    console.log('New page created.');
+
     await page.setUserAgent(req.headers['user-agent'] || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36');
+    console.log('User agent set.');
 
-    // Navigate to the page
-    // waitUntil: 'networkidle0' waits until there are no more than 0 network connections for at least 500 ms.
-    // This helps ensure dynamic content has loaded, but can be slow or timeout.
-    // Consider 'domcontentloaded' or 'load' for faster but potentially less complete results.
-    const response = await page.goto(targetUrl, { waitUntil: 'networkidle0', timeout: 30000 }); // 30 second timeout
+    console.log(`Navigating to ${targetUrl}...`);
+    const response = await page.goto(targetUrl, { waitUntil: 'networkidle0', timeout: 30000 }); // Keep 30s timeout for now
+    console.log(`Navigation response status: ${response?.status()}`);
 
     if (!response || !response.ok()) {
-        console.error(`Headless proxy failed for ${targetUrl}: Status ${response?.status()}`);
-        // Send the status code received from the headless browser
+        console.error(`Headless proxy failed during navigation for ${targetUrl}: Status ${response?.status()}`);
+        // Close browser before sending response on failure
+        if (browser) await browser.close();
         return res.status(response?.status() || 500).send(`Failed to load page: Status ${response?.status()}`);
     }
 
-    // Get the final HTML content after JavaScript execution
+    console.log('Getting page content...');
     const content = await page.content();
+    console.log('Page content retrieved.');
 
-    // Set headers for the proxy response to the client
-    // Remove problematic headers for iframe embedding
+    // ... rest of the route (header setting, sending response) ...
     res.removeHeader('X-Frame-Options');
-    res.removeHeader('Content-Security-Policy'); // Remove original CSP
-    // Optionally, set a permissive CSP for the iframe (use with caution)
-    // res.setHeader('Content-Security-Policy', "frame-ancestors 'self' *");
-
-    // Send the content fetched by Puppeteer
+    res.removeHeader('Content-Security-Policy');
+    res.removeHeader('Content-Length');
     res.send(content);
+    console.log(`Successfully proxied ${targetUrl}`);
+
 
   } catch (error) {
+    // Log the error with more context
     console.error(`Headless proxy error for ${targetUrl}:`, error);
+    if (page) {
+        console.error("Page URL at time of error:", page.url());
+    }
     if (!res.headersSent) {
         res.status(500).send(`Headless proxy error: ${error.message}`);
     }
   } finally {
     // Ensure the browser is closed even if errors occur
     if (browser) {
-      await browser.close();
+      console.log('Closing browser...');
+      try {
+          await browser.close();
+          console.log('Browser closed.');
+      } catch (closeError) {
+          console.error('Error closing browser:', closeError);
+      }
     }
   }
 });
